@@ -36,6 +36,9 @@ repositories {
     maven {
         url 'https://haoshoku.xyz:1234/repository/public/'
     }
+    maven {
+        url 'https://repo.alessiodp.com/releases/'
+    }
 }
 
 dependencies {
@@ -45,6 +48,7 @@ dependencies {
     compileOnly 'com.github.azbh111:craftbukkit-1.8.8:R'
     compileOnly 'net.luckperms:api:5.4'
     compileOnly "com.comphenix.protocol:ProtocolLib:4.8.0"
+    compileOnly 'net.byteflux:libby-bukkit:1.1.5'
     compileOnly 'net.citizensnpcs:citizens-main:2.0.30-SNAPSHOT'
     compileOnly 'com.gmail.filoghost.holographicdisplays:holographicdisplays-api:2.4.9'
     implementation 'org.reflections:reflections:0.10.2'

@@ -61,5 +61,15 @@
       <option name="name" value="maven4" />
       <option name="url" value="https://haoshoku.xyz:1234/repository/public/" />
     </remote-repository>
+    <remote-repository>
+      <option name="id" value="MavenLocal" />
+      <option name="name" value="MavenLocal" />
+      <option name="url" value="file:/$MAVEN_REPOSITORY$" />
+    </remote-repository>
+    <remote-repository>
+      <option name="id" value="maven5" />
+      <option name="name" value="maven5" />
+      <option name="url" value="https://repo.alessiodp.com/releases/" />
+    </remote-repository>
   </component>
 </project>
