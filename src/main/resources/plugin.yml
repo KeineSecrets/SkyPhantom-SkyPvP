@@ -3,9 +3,9 @@ author: castvway
 main: eu.skyphantom.skypvp.SkyPvP
 version: 1.0
 depend:
-  - Citizens
   - ProtocolLib
   - HolographicDisplays
   - LuckPerms
+  - Citizens
 softdepend:
   - JDA
