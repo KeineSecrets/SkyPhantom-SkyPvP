@@ -8,18 +8,13 @@ import eu.skyphantom.skypvp.hooks.EventManager;
 import eu.skyphantom.skypvp.hooks.GuiHandler;
 import eu.skyphantom.skypvp.hooks.SchedulerManager;
 import eu.skyphantom.skypvp.lms.LMS;
-import eu.skyphantom.skypvp.provider.LocationProvider;
 import eu.skyphantom.skypvp.provider.LuckPermsProvider;
 import eu.skyphantom.skypvp.provider.TabCompleteProvider;
 import eu.skyphantom.skypvp.provider.TablistProvider;
 import eu.skyphantom.skypvp.utils.ChunkLoader;
 import eu.skyphantom.skypvp.utils.advent.Kalender;
 import eu.skyphantom.skypvp.utils.scoreboard.ScoreboardHelper;
-import javafx.scene.control.Tab;
-import net.luckperms.api.event.node.NodeMutateEvent;
 import net.luckperms.api.event.user.UserDataRecalculateEvent;
-import org.bukkit.Bukkit;
-import org.bukkit.Chunk;
 import org.bukkit.plugin.java.JavaPlugin;
 
 public class SkyPvP extends JavaPlugin {
@@ -91,9 +86,8 @@ public class SkyPvP extends JavaPlugin {
         LuckPermsProvider.registerProvider();
         LuckPermsProvider.get().getEventBus().subscribe(this, UserDataRecalculateEvent.class, NodeMutateListener::onGroupChange);
 
-       // Bukkit.getScheduler().scheduleSyncRepeatingTask(this, () -> Bukkit.getOnlinePlayers().forEach(TablistProvider::setPrefix), 0L, 20L);
-
-        chunkLoader.load(new LocationProvider("spawn").get(), 10);
+        //Bukkit.getScheduler().scheduleSyncRepeatingTask(this, () -> Bukkit.getOnlinePlayers().forEach(TablistProvider::setPrefix), 0L, 20L);
+        //chunkLoader.load(new LocationProvider("spawn").get(), 10);
     }
 
     @Override

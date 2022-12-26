@@ -3,7 +3,6 @@ package eu.skyphantom.skypvp.discord;
 import eu.skyphantom.skypvp.SkyPvP;
 import eu.skyphantom.skypvp.discord.adapter.ButtonClickAdapter;
 import eu.skyphantom.skypvp.discord.adapter.CommandAdapter;
-import eu.skyphantom.skypvp.discord.adapter.TeamAdapter;
 import eu.skyphantom.skypvp.discord.adapter.VerificationAdapter;
 import net.dv8tion.jda.api.JDA;
 import net.dv8tion.jda.api.JDABuilder;
@@ -11,7 +10,6 @@ import net.dv8tion.jda.api.entities.Activity;
 import net.dv8tion.jda.api.requests.GatewayIntent;
 import net.dv8tion.jda.api.utils.ChunkingFilter;
 import net.dv8tion.jda.api.utils.MemberCachePolicy;
-import net.kyori.adventure.platform.bukkit.BukkitAudiences;
 import org.bukkit.Bukkit;
 import org.bukkit.plugin.Plugin;
 
@@ -36,7 +34,7 @@ public class Discord {
         jdaBuilder.setChunkingFilter(ChunkingFilter.ALL);
         jdaBuilder.setAutoReconnect(true);
 
-        jdaBuilder.addEventListeners(new CommandAdapter(), new VerificationAdapter(), new ButtonClickAdapter(), new TeamAdapter());
+        jdaBuilder.addEventListeners(new CommandAdapter(), new VerificationAdapter(), new ButtonClickAdapter());
 
         try {
             jda = jdaBuilder.build();
@@ -47,7 +45,7 @@ public class Discord {
         }
 
         task = Bukkit.getScheduler().scheduleSyncRepeatingTask(SkyPvP.getInstance(), () -> {
-            executor.execute(() -> jda.getPresence().setActivity(Activity.streaming("mit " + Bukkit.getOnlinePlayers().size() + " Spielern", "https://www.youtube.com/watch?v=KmtzQCSh6xk")));
+            executor.execute(() -> jda.getPresence().setActivity(Activity.streaming("mit " + Bukkit.getOnlinePlayers().size() + " Spielern", "https://www.youtube.com/watch?v=GbZSx2B6nUY")));
         }, 0L, 20*5L);
 
     }

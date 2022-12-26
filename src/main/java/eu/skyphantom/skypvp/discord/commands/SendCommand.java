@@ -1,7 +1,6 @@
 package eu.skyphantom.skypvp.discord.commands;
 
 import net.dv8tion.jda.api.EmbedBuilder;
-import net.dv8tion.jda.api.entities.Emoji;
 import net.dv8tion.jda.api.events.interaction.SlashCommandEvent;
 import net.dv8tion.jda.api.interactions.components.Button;
 import net.dv8tion.jda.api.interactions.components.ButtonStyle;
@@ -43,15 +42,7 @@ public class SendCommand {
                 embedBuilder.setDescription("> *Klicke auf den Knopf, um ein Ticket zu öffnen.*");
                 embedBuilder.setColor(Color.GREEN.darker());
                 embedBuilder.setTimestamp(OffsetDateTime.now());
-                event.getChannel().sendMessageEmbeds(embedBuilder.build()).setActionRow(Button.success("openTicketNormal", "💐 › Allgemeine Frage"), Button.danger("openTicketAdmin", "⚠️ › Admins kontaktieren")).queue();
-            } else if (what.equals("rewards")) {
-                if (event.getUser().getIdLong() != 943171984785821706L) return;
-                EmbedBuilder embedBuilder = new EmbedBuilder();
-                embedBuilder.setTitle("✅ × REWARDS");
-                embedBuilder.setDescription("> *Hole deine Rewards ab, sogar wenn der Server in Wartungsarbeiten ist!*");
-                embedBuilder.setColor(Color.CYAN.darker());
-                embedBuilder.setTimestamp(OffsetDateTime.now());
-                event.getChannel().sendMessageEmbeds(embedBuilder.build()).setActionRow(Button.success("collectRewards1", "✅ › Rewards abholen")).queue();
+                event.getChannel().sendMessageEmbeds(embedBuilder.build()).setActionRow(Button.success("openTicketNormal", "💐 › Ticket öffnen")).queue();
             }
         }
     }

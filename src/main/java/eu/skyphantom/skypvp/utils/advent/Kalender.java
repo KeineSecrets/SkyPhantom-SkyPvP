@@ -2,7 +2,6 @@ package eu.skyphantom.skypvp.utils.advent;
 
 import eu.skyphantom.skypvp.SkyPvP;
 import eu.skyphantom.skypvp.api.Config;
-import org.bukkit.Bukkit;
 import org.bukkit.entity.Player;
 
 public class Kalender {
@@ -26,7 +25,6 @@ public class Kalender {
             if (config.getConfig().getConfigurationSection(player.getUniqueId().toString()) == null) {
                 for (int i = 0; i < 24; i++) {
                     config.getConfig().set(player.getUniqueId().toString() + "." + i, false);
-                    i++;
                 }
             }
         }

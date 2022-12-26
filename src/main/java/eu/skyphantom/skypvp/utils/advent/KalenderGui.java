@@ -1,6 +1,5 @@
 package eu.skyphantom.skypvp.utils.advent;
 
-import eu.skyphantom.skypvp.SkyPvP;
 import eu.skyphantom.skypvp.hooks.Gui;
 import eu.skyphantom.skypvp.utils.Utils;
 import eu.skyphantom.skypvp.utils.items.ItemBuilder;
@@ -46,7 +45,7 @@ public class KalenderGui extends Gui {
         getInventory().setItem(39, new ItemBuilder(Material.WOOD_DOOR).setName("§8▎ §7Türchen §8#§c23"));
         getInventory().setItem(41, new ItemBuilder(Material.WOOD_DOOR).setName("§8▎ §7Türchen §8#§c24"));
 
-        getInventory().setItem( 40, new ItemBuilder(Material.SIGN).setName("§8▎ §7Informationen").lore("§8▪ §7Datum§8: §c" + Utils.getTodayDay() + "§8'§c" + Utils.getTodayMonth() + "§8'§c2022"));
+        getInventory().setItem(40, new ItemBuilder(Material.SIGN).setName("§8▎ §7Informationen").lore("§8▪ §7Datum§8: §c" + Utils.getTodayDay() + "§8'§c" + Utils.getTodayMonth() + "§8'§c2023"));
 
         player.playSound(player.getLocation(), Sound.CHEST_OPEN, 0.5F, 90.F);
     }
@@ -56,7 +55,7 @@ public class KalenderGui extends Gui {
         if (clickedItem.getItemMeta().getDisplayName().contains("§8▎ §7Türchen §8#§c")) {
             int day = Integer.parseInt(Utils.getTodayDay());
             int month = Integer.parseInt(Utils.getTodayMonth());
-            if (month != 11) {
+            if (month != 12) {
                 player.sendMessage(Kalender.PREFIX + "§7Es ist noch nicht Dezember§8.");
                 return;
             }
@@ -83,7 +82,6 @@ public class KalenderGui extends Gui {
                 Kalender.getInstance().setOpened(player, num);
                 player.sendMessage(Kalender.PREFIX + "§7Du hast Türchen §8#§c" + num + "§7 geöffnet§8.");
                 //TODO: Mega-Reward
-                return;
             }
         }
     }
