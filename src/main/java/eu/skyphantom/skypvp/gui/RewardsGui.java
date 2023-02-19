@@ -1,14 +1,11 @@
 package eu.skyphantom.skypvp.gui;
 
-import com.sun.corba.se.spi.encoding.CorbaOutputObject;
 import eu.skyphantom.skypvp.SkyPvP;
-import eu.skyphantom.skypvp.crates.CrateHandler;
 import eu.skyphantom.skypvp.hooks.Gui;
 import eu.skyphantom.skypvp.utils.Utils;
 import eu.skyphantom.skypvp.utils.cooldowns.CooldownManager;
 import eu.skyphantom.skypvp.utils.items.ItemBuilder;
 import eu.skyphantom.skypvp.utils.time.TimeUtil;
-import net.md_5.bungee.api.chat.TextComponent;
 import org.bukkit.Bukkit;
 import org.bukkit.Material;
 import org.bukkit.Sound;
@@ -18,9 +15,6 @@ import org.bukkit.inventory.InventoryView;
 import org.bukkit.inventory.ItemStack;
 import org.jetbrains.annotations.NotNull;
 
-import java.text.SimpleDateFormat;
-import java.util.ArrayList;
-import java.util.List;
 import java.util.concurrent.TimeUnit;
 
 public class RewardsGui extends Gui {
@@ -100,7 +94,7 @@ public class RewardsGui extends Gui {
                     return;
                 }
                 player.sendMessage(SkyPvP.PREFIX + "§7Du hast folgende Crates erhalten§8:");
-                CrateHandler crateHandler = new CrateHandler("Test");
+                /*CrateHandler crateHandler = new CrateHandler("Test");
                 List<String> rndmCrate = new ArrayList<>(crateHandler.getCrates());
                 for (int i = 0; i < 10; i++) {
                     int rndm = Utils.getRandom().nextInt(rndmCrate.size());
@@ -111,7 +105,7 @@ public class RewardsGui extends Gui {
                     hover.setHoverEvent(Utils.showItem(crate));
                     message.addExtra(hover);
                     player.spigot().sendMessage(message);
-                }
+                }*/
                 cooldownManager.addCooldown("reward_tcrate", 1, TimeUnit.DAYS);
                 System.out.println(cooldownManager.isOnCooldown("reward_tcrate"));
                 update();
@@ -124,7 +118,7 @@ public class RewardsGui extends Gui {
                 }
                 int integer = Utils.getRandomInt(1, 10);
                 double tokens = 1000 * integer;
-                CrateHandler crateHandler = new CrateHandler("Test");
+                /*CrateHandler crateHandler = new CrateHandler("Test");
                 List<String> rndmCrate = new ArrayList<>(crateHandler.getCrates());
                 int crateInt = Utils.getRandomInt(0, (rndmCrate.size() - 1));
                 String crate = rndmCrate.get(crateInt);
@@ -132,8 +126,8 @@ public class RewardsGui extends Gui {
                 ItemStack crateItem = crateHandler.getCrateItem();
                 TextComponent hover = new TextComponent("§8'§a" + crateItem.getItemMeta().getDisplayName() + "§8'§r");
                 hover.setHoverEvent(Utils.showItem(crateItem));
+                player.spigot().sendMessage(new TextComponent(SkyPvP.PREFIX + "§7Du hast §a1§8x "), hover, new TextComponent("§8-§7Crate §7erhalten§8."));*/
                 player.sendMessage(SkyPvP.PREFIX + "§7Dir wurden §6" + tokens + " Tokens§7 gutgeschrieben§8.");
-                player.spigot().sendMessage(new TextComponent(SkyPvP.PREFIX + "§7Du hast §a1§8x "), hover, new TextComponent("§8-§7Crate §7erhalten§8."));
                 cooldownManager.addCooldown("reward_weekly", 7, TimeUnit.DAYS);
                 update();
             }

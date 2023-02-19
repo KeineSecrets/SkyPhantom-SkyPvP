@@ -2,6 +2,7 @@ package eu.skyphantom.skypvp.utils;
 
 import com.mojang.authlib.GameProfile;
 import com.mojang.authlib.properties.Property;
+import eu.skyphantom.skypvp.SkyPvP;
 import eu.skyphantom.skypvp.utils.font.DefaultFontInfo;
 import eu.skyphantom.skypvp.utils.items.ItemBuilder;
 import net.md_5.bungee.api.chat.BaseComponent;
@@ -18,6 +19,7 @@ import org.bukkit.block.Chest;
 import org.bukkit.craftbukkit.v1_8_R3.CraftWorld;
 import org.bukkit.craftbukkit.v1_8_R3.entity.CraftPlayer;
 import org.bukkit.craftbukkit.v1_8_R3.inventory.CraftItemStack;
+import org.bukkit.enchantments.Enchantment;
 import org.bukkit.entity.Player;
 import org.bukkit.inventory.Inventory;
 import org.bukkit.inventory.ItemStack;
@@ -29,7 +31,10 @@ import org.bukkit.util.Vector;
 import javax.annotation.Nonnull;
 import java.awt.Color;
 import java.lang.reflect.Field;
+import java.math.BigDecimal;
+import java.math.RoundingMode;
 import java.text.DateFormat;
+import java.text.DecimalFormat;
 import java.text.SimpleDateFormat;
 import java.time.Duration;
 import java.util.List;
@@ -38,11 +43,13 @@ import java.util.concurrent.CopyOnWriteArrayList;
 
 public class Utils {
 
+    public static final String EVENT = "%s, %s Uhr";
+
     private static final Field PROFILE_FIELD;
     private static final int CENTER_PX = 154;
     private static Class<?> skullMetaClass, tileEntityClass;
-    private static Random random = new Random();
-    private static List<UUID> godMode = new CopyOnWriteArrayList<>();
+    private static final Random random = new Random();
+    private static final List<UUID> godMode = new CopyOnWriteArrayList<>();
 
     static {
         Field f = null;
@@ -58,6 +65,22 @@ public class Utils {
         PROFILE_FIELD = f;
     }
 
+    public static Location getRandomLocation(String world) {
+        Location loc = null;
+        Random rnd = new Random();
+        while (loc == null) { // || new LocationProvider("spawn").get().distanceSquared(loc) < 1.0E8) {
+            int x = rnd.nextInt(10000 + 51);
+            int z = rnd.nextInt(10000 + 51);
+            loc = Bukkit.getWorld(world).getHighestBlockAt(x, z).getLocation().add(0.5, 0.0, 0.5);
+            if (!loc.subtract(0.0, 1.0, 0.0).getBlock().getType().isSolid()) {
+                loc = null;
+            }
+        }
+        if (!loc.subtract(0.0, 1.0, 0.0).getBlock().getType().isSolid()) {
+        }
+        return loc;
+    }
+
     public static List<UUID> getGodMode() {
         return godMode;
     }
@@ -67,7 +90,9 @@ public class Utils {
     }
 
     public static String format(double aDouble, String color) {
-        return new SimpleDateFormat("#,###.##").format(aDouble).replace(",", ".").replace(".", "§8'" + color);
+        System.out.println(aDouble);
+        DecimalFormat decimalFormat = new DecimalFormat("#,###.##");
+        return decimalFormat.format(aDouble).replace(",", ".").replace(".", "§8'" + color);
     }
 
     public static int getRandomInt(int min, int max) {
@@ -104,7 +129,54 @@ public class Utils {
         player.playSound(player.getLocation(), sound, volume, pitch);
     }
 
-    public static void playAllSound(Location location, Sound sound, float volume, float pitch) {
+    public static String formatDouble(double number) {
+        String suffix = "";
+        double formatted = number;
+        if (number >= 1000000000000.0) {
+            suffix = "T";
+            formatted = Math.round(number / 10000000000.0) / 100.0;
+        } else if (number >= 1000000000.0) {
+            suffix = "B";
+            formatted = Math.round(number / 10000000.0) / 100.0;
+        } else if (number >= 1000000.0) {
+            suffix = "M";
+            formatted = Math.round(number / 10000.0) / 100.0;
+        } else if (number >= 1000.0) {
+            suffix = "K";
+            formatted = Math.round(number / 10.0) / 100.0;
+        }
+        return formatted + suffix;
+    }
+
+    public static double parseFormattedNumber(String formattedNumber) {
+        formattedNumber = formattedNumber.toLowerCase();
+        try {
+            double multiplier = 1.0;
+            switch (formattedNumber.charAt(formattedNumber.length() - 1)) {
+                case 'K':
+                    multiplier = 1e3;
+                    break;
+                case 'M':
+                    multiplier = 1e6;
+                    break;
+                case 'B':
+                    multiplier = 1e9;
+                    break;
+                case 'T':
+                    multiplier = 1e12;
+                    break;
+                default:
+                    return Double.parseDouble(formattedNumber);
+            }
+            double value = Double.parseDouble(formattedNumber.substring(0, formattedNumber.length() - 1));
+            return value * multiplier;
+        } catch (NumberFormatException e) {
+            return -1.0D;
+        }
+    }
+
+
+    public static void playSound(Location location, Sound sound, float volume, float pitch) {
         Bukkit.getOnlinePlayers().forEach(player -> player.playSound(location, sound, volume, pitch));
     }
 
@@ -197,7 +269,7 @@ public class Utils {
             sb.append(" ");
             compensated += spaceLength;
         }
-        return (sb.toString() + message);
+        return (sb + message);
     }
 
     public static void sendActionbar(Player player, String message) {
@@ -211,20 +283,20 @@ public class Utils {
     public static void sendTitle(Player player, Integer fadeIn, Integer stay, Integer fadeOut, String title, String subtitle) {
         PlayerConnection connection = (((CraftPlayer) player).getHandle()).playerConnection;
         PacketPlayOutTitle packetPlayOutTimes = new PacketPlayOutTitle(PacketPlayOutTitle.EnumTitleAction.TIMES, null, fadeIn.intValue(), stay.intValue(), fadeOut.intValue());
-        connection.sendPacket((Packet) packetPlayOutTimes);
+        connection.sendPacket(packetPlayOutTimes);
         if (subtitle != null) {
             subtitle = subtitle.replaceAll("%player%", player.getDisplayName());
             subtitle = ChatColor.translateAlternateColorCodes('&', subtitle);
             IChatBaseComponent titleSub = IChatBaseComponent.ChatSerializer.a("{\"text\": \"" + subtitle + "\"}");
             PacketPlayOutTitle packetPlayOutSubTitle = new PacketPlayOutTitle(PacketPlayOutTitle.EnumTitleAction.SUBTITLE, titleSub);
-            connection.sendPacket((Packet) packetPlayOutSubTitle);
+            connection.sendPacket(packetPlayOutSubTitle);
         }
         if (title != null) {
             title = title.replaceAll("%player%", player.getDisplayName());
             title = ChatColor.translateAlternateColorCodes('&', title);
             IChatBaseComponent titleMain = IChatBaseComponent.ChatSerializer.a("{\"text\": \"" + title + "\"}");
             PacketPlayOutTitle packetPlayOutTitle = new PacketPlayOutTitle(PacketPlayOutTitle.EnumTitleAction.TITLE, titleMain);
-            connection.sendPacket((Packet) packetPlayOutTitle);
+            connection.sendPacket(packetPlayOutTitle);
         }
     }
 
@@ -246,12 +318,19 @@ public class Utils {
         } catch (Exception e) {
             e.printStackTrace();
         } finally {
-            connection.sendPacket((Packet) headerPacket);
+            connection.sendPacket(headerPacket);
         }
     }
 
     public static HoverEvent showItem(ItemStack itemStack) {
         return new HoverEvent(HoverEvent.Action.SHOW_ITEM, new BaseComponent[]{new TextComponent(CraftItemStack.asNMSCopy(itemStack).save(new NBTTagCompound()).toString())});
+    }
+
+    public static String removeColors(String string) {
+        for (ChatColor chatColor : ChatColor.values()) {
+            string = string.replace(String.valueOf(ChatColor.COLOR_CHAR + chatColor.getChar()), "");
+        }
+        return string;
     }
 
 	/*public static  void teleportToRandomPosition(Player p, int min, int max) {
@@ -311,7 +390,7 @@ public class Utils {
         calendar.set(5, 1);
         calendar.add(5, -1);
         DateFormat sdf = new SimpleDateFormat("dd-MM-yyyy");
-        String str = sdf.format(today).toString();
+        String str = sdf.format(today);
         return str;
     }
 
@@ -628,4 +707,134 @@ public class Utils {
         return getExpAtLevel(nextLevel) - exp;
     }
 
+    public static double roundUp(double d) {
+        BigDecimal bigDecimal = new BigDecimal(d).setScale(0, RoundingMode.HALF_UP);
+        return bigDecimal.doubleValue();
+    }
+
+    public static String generateChatColorBySubId(int subId) {
+        ChatColor chatColor;
+        switch (subId) {
+            case 0:
+                chatColor = ChatColor.BLACK;
+                break;
+            case 1:
+                chatColor = ChatColor.DARK_BLUE;
+                break;
+            case 2:
+                chatColor = ChatColor.DARK_GREEN;
+                break;
+            case 3:
+                chatColor = ChatColor.DARK_AQUA;
+                break;
+            case 4:
+                chatColor = ChatColor.DARK_RED;
+                break;
+            case 5:
+                chatColor = ChatColor.DARK_PURPLE;
+                break;
+            case 6:
+                chatColor = ChatColor.GOLD;
+                break;
+            case 7:
+                chatColor = ChatColor.GRAY;
+                break;
+            case 8:
+                chatColor = ChatColor.DARK_GRAY;
+                break;
+            case 9:
+                chatColor = ChatColor.BLUE;
+                break;
+            case 10:
+                chatColor = ChatColor.GREEN;
+                break;
+            case 11:
+                chatColor = ChatColor.AQUA;
+                break;
+            case 12:
+                chatColor = ChatColor.RED;
+                break;
+            case 13:
+                chatColor = ChatColor.LIGHT_PURPLE;
+                break;
+            case 14:
+                chatColor = ChatColor.YELLOW;
+                break;
+            default:
+                chatColor = ChatColor.WHITE;
+                break;
+        }
+        return String.valueOf(ChatColor.COLOR_CHAR + chatColor.getChar());
+    }
+
+    public static String formatPing(int ping) {
+        return (ping <= 20 ? "§a" + ping + "ms" : (ping <= 40 ? "§e" + ping + "ms" : (ping <= 60 ? "§c" + ping + "ms" : "§4" + ping + "ms")));
+    }
+
+    public static boolean isTopInventory(Player p, int rawSlot) {
+        boolean isTop = p != null && rawSlot < p.getOpenInventory().getTopInventory().getSize();
+        return isTop;
+    }
+
+    public static boolean sameItem(ItemStack a, ItemStack b) {
+        ItemStack c = new ItemStack(a.getType(), 1, a.getDurability(), a.getData().getData());
+        if (a.hasItemMeta()) c.setItemMeta(a.getItemMeta());
+        for (Map.Entry<org.bukkit.enchantments.Enchantment, Integer> e : a.getEnchantments().entrySet())
+            c.addEnchantment(e.getKey(), e.getValue());
+        ItemStack d = new ItemStack(b.getType(), 1, b.getDurability(), b.getData().getData());
+        if (b.hasItemMeta()) d.setItemMeta(b.getItemMeta());
+        for (Map.Entry<Enchantment, Integer> e : b.getEnchantments().entrySet())
+            d.addEnchantment(e.getKey(), e.getValue());
+        return c.equals(d);
+    }
+
+    public static void playJoinSound(Player player) {
+        player.playSound(player.getLocation(), Sound.CHEST_OPEN, 1.5F, 14.5F);
+
+        Bukkit.getScheduler().runTaskLater(SkyPvP.getInstance(), () -> player.playSound(player.getLocation(), Sound.NOTE_STICKS, 1.5F, 14.5F), 4);
+
+        Bukkit.getScheduler().runTaskLater(SkyPvP.getInstance(), () -> player.playSound(player.getLocation(), Sound.NOTE_STICKS, 1.5F, 14.5F), 6);
+
+        Bukkit.getScheduler().runTaskLater(SkyPvP.getInstance(), () -> player.playSound(player.getLocation(), Sound.NOTE_STICKS, 1.5F, 14.5F), 8);
+
+        Bukkit.getScheduler().runTaskLater(SkyPvP.getInstance(), () -> player.playSound(player.getLocation(), Sound.NOTE_STICKS, 1.5F, 14.5F), 10);
+
+        Bukkit.getScheduler().runTaskLater(SkyPvP.getInstance(), () -> player.playSound(player.getLocation(), Sound.CHEST_CLOSE, 1.5F, 14.5F), 12);
+
+
+    }
+
+    public static void playSuccessSound(Player player) {
+        player.playSound(player.getLocation(), Sound.SUCCESSFUL_HIT, 2.5F, 14.5F);
+    }
+
+    public static <T> T getRandomItemOutOfList(List<T> list) {
+        int min = 0;
+        int max = list.size() - 1;
+        int random = getRandomInt(min, max);
+        return (list.get(random));
+    }
+
+    public static void playBigSuccessSound(Player player) {
+
+        player.playSound(player.getLocation(), Sound.NOTE_PLING, 1.5F, 14.5F);
+
+        Bukkit.getScheduler().runTaskLater(SkyPvP.getInstance(), () -> player.playSound(player.getLocation(), Sound.NOTE_STICKS, 1.5F, 14.5F), 4);
+
+        Bukkit.getScheduler().runTaskLater(SkyPvP.getInstance(), () -> player.playSound(player.getLocation(), Sound.NOTE_STICKS, 1.5F, 14.5F), 6);
+
+        Bukkit.getScheduler().runTaskLater(SkyPvP.getInstance(), () -> player.playSound(player.getLocation(), Sound.NOTE_STICKS, 1.5F, 14.5F), 8);
+
+        Bukkit.getScheduler().runTaskLater(SkyPvP.getInstance(), () -> player.playSound(player.getLocation(), Sound.NOTE_STICKS, 1.5F, 14.5F), 10);
+
+        Bukkit.getScheduler().runTaskLater(SkyPvP.getInstance(), () -> player.playSound(player.getLocation(), Sound.NOTE_PLING, 1.5F, 14.5F), 11);
+    }
+
+    public static void playUnsuccessSound(Player player) {
+        player.playSound(player.getLocation(), Sound.ITEM_BREAK, 0.5F, 14.5F);
+    }
+
+    public static void playOpenSound(Player player) {
+        player.playSound(player.getLocation(), Sound.HORSE_ARMOR, 1.5F, 14.5F);
+    }
 }

@@ -11,8 +11,6 @@ import org.bukkit.event.EventHandler;
 import org.bukkit.event.Listener;
 import org.bukkit.event.player.PlayerInteractEvent;
 
-import java.text.DecimalFormat;
-
 public class GutscheinListener implements Listener {
 
     @EventHandler
@@ -23,9 +21,7 @@ public class GutscheinListener implements Listener {
                 event.setCancelled(true);
                 EnderChestProvider enderChestProvider = new EnderChestProvider(player.getUniqueId());
                 enderChestProvider.addPage(player);
-                return;
             }
-            return;
         } else if (event.getPlayer().getItemInHand() != null && event.getPlayer().getItemInHand().getType() == Material.DOUBLE_PLANT) {
             if (event.getPlayer().getItemInHand().getItemMeta().getDisplayName().contains("§8▎ §a§lGUTSCHEIN§8 ▪ §6")) {
                 event.setCancelled(true);
@@ -33,8 +29,7 @@ public class GutscheinListener implements Listener {
                 Utils.removeItemFromHand(player, event.getPlayer().getItemInHand().getAmount());
                 StatsProvider provider = new StatsProvider(player.getUniqueId());
                 provider.addCoins(value);
-                player.sendMessage(SkyPvP.PREFIX + "§7Dir wurden §6" + new DecimalFormat("#,###.##").format(value).replace(",", ".").replace(".", "§8'§6") + " Tokens §7gutgeschrieben§8.");
-                return;
+                player.sendMessage(SkyPvP.PREFIX + "§7Dir wurden §6" + Utils.formatDouble(value) + " Tokens §7gutgeschrieben§8.");
             }
         }
     }

@@ -64,6 +64,16 @@ public class EnderChestProvider {
     }
 
     public void openEnderchest(Player to, int page) {
+        if (UUIDFetcher.getName(this.uuid) == null) {
+            to.sendMessage(SkyPvP.PREFIX + "§7Dieser Spieler existiert nicht§8.");
+            Utils.playUnsuccessSound(to);
+            return;
+        }
+        if (!Bukkit.getOfflinePlayer(this.uuid).hasPlayedBefore()) {
+            to.sendMessage(SkyPvP.PREFIX + "§7Dieser Spieler existiert nicht§8.");
+            Utils.playUnsuccessSound(to);
+            return;
+        }
         if (config.getConfig().getInt(uuid + ".pages") >= page) {
             Inventory inventory = Bukkit.createInventory(null, 9 * 6, "§8▎ §a§lEC§8 ▪ #§7" + page);
             String items = (config.getConfig().getString(this.uuid + "." + page) == null ? "" : config.getConfig().getString(this.uuid + "." + page));
@@ -86,9 +96,11 @@ public class EnderChestProvider {
             inventory.setItem(62 - 9, new ItemBuilder(Material.STAINED_GLASS_PANE).setDataId(15).setName("§8-/-§r"));
             to.openInventory(inventory);
             to.sendMessage(SkyPvP.PREFIX + "§7Du hast die Enderchest §8#§a" + page + "§7 von §a" + (uuid.equals(to.getUniqueId()) ? "dir" : UUIDFetcher.getName(this.uuid) + "§7 geöffnet§8."));
+            Utils.playOpenSound(to);
             return;
         }
         to.sendMessage(SkyPvP.PREFIX + "§7Der Spieler hat diese Seite nicht freigeschaltet§8.");
+        Utils.playUnsuccessSound(to);
     }
 
 }

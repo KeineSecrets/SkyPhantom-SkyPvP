@@ -1,7 +1,6 @@
 package eu.skyphantom.skypvp.discord.adapter;
 
 import eu.skyphantom.skypvp.SkyPvP;
-import eu.skyphantom.skypvp.discord.Discord;
 import net.dv8tion.jda.api.EmbedBuilder;
 import net.dv8tion.jda.api.Permission;
 import net.dv8tion.jda.api.entities.Guild;
@@ -24,7 +23,7 @@ public class ButtonClickAdapter extends ListenerAdapter {
             Guild guild = event.getGuild();
             if (guild.getTextChannelsByName("ticket-" + event.getUser().getId(), false).isEmpty() || guild.getTextChannelsByName("ticket-" + event.getUser().getId(), false).get(0) == null) {
 
-                if (event.getMember().getRoles().contains(guild.getRoleById(1038437908325072976L))) {
+                if (event.getMember().getRoles().contains(guild.getRoleById(1076491532175151134L))) {
                     event.reply("` ❌ ` › Du kannst kein Ticket erstellen, da du ein Teammitglied bist.").setEphemeral(true).queue();
                     return;
                 }
@@ -34,7 +33,7 @@ public class ButtonClickAdapter extends ListenerAdapter {
                 embedBuilder.setColor(Color.GREEN.darker());
                 embedBuilder.setTimestamp(OffsetDateTime.now());
 
-                guild.createTextChannel("ticket-" + event.getUser().getId(), guild.getCategoryById(1037308319574007878L)).addPermissionOverride(event.getMember(), EnumSet.of(Permission.VIEW_CHANNEL, Permission.MESSAGE_WRITE), null).addPermissionOverride(guild.getPublicRole(), null, EnumSet.of(Permission.VIEW_CHANNEL, Permission.MESSAGE_WRITE)).addPermissionOverride(guild.getRoleById(1038437908325072976L), EnumSet.of(Permission.VIEW_CHANNEL, Permission.MESSAGE_WRITE), null).complete().sendMessage("" + guild.getRoleById(1038437908325072976L).getAsMention() + "").queue(message -> {
+                guild.createTextChannel("ticket-" + event.getUser().getId(), guild.getCategoryById(1056116741362679860L)).addPermissionOverride(event.getMember(), EnumSet.of(Permission.VIEW_CHANNEL, Permission.MESSAGE_WRITE), null).addPermissionOverride(guild.getPublicRole(), null, EnumSet.of(Permission.VIEW_CHANNEL, Permission.MESSAGE_WRITE)).addPermissionOverride(guild.getRoleById(1076491532175151134L), EnumSet.of(Permission.VIEW_CHANNEL, Permission.MESSAGE_WRITE), null).complete().sendMessage("" + guild.getRoleById(1076491532175151134L).getAsMention() + "").queue(message -> {
                     message.getChannel().sendMessageEmbeds(embedBuilder.build()).setActionRow(Button.danger("closeThisTicket", "❌ › Ticket schließen")).queue(message1 -> {
                         event.reply("` ✅ ` › Dein Ticket wurde erstellt: <#" + message.getChannel().getIdLong() + ">").setEphemeral(true).queue(interactionHook -> {
                             EmbedBuilder embedBuilderLog = new EmbedBuilder();
@@ -43,7 +42,7 @@ public class ButtonClickAdapter extends ListenerAdapter {
                             embedBuilderLog.setTimestamp(OffsetDateTime.now());
                             embedBuilderLog.setColor(Color.CYAN.darker());
 
-                            SkyPvP.getInstance().getDiscord().getJda().getTextChannelById(1037084805596196976L).sendMessageEmbeds(embedBuilderLog.build()).queue();
+                            SkyPvP.getInstance().getDiscord().getJda().getTextChannelById(1069023799372157010L).sendMessageEmbeds(embedBuilderLog.build()).queue();
                         });
                     });
                 });
@@ -54,7 +53,7 @@ public class ButtonClickAdapter extends ListenerAdapter {
             Guild guild = event.getGuild();
             if (guild.getTextChannelsByName("admin-" + event.getUser().getId(), false).isEmpty() || guild.getTextChannelsByName("admin-" + event.getUser().getId(), false).get(0) == null) {
 
-                if (event.getMember().getRoles().contains(guild.getRoleById(1038437908325072976L))) {
+                if (event.getMember().getRoles().contains(guild.getRoleById(1076491532175151134L))) {
                     event.reply("` ❌ ` › Du kannst kein Adminticket erstellen, da du ein Teammitglied bist.").setEphemeral(true).queue();
                     return;
                 }
@@ -64,7 +63,7 @@ public class ButtonClickAdapter extends ListenerAdapter {
                 embedBuilder.setColor(Color.GREEN.darker());
                 embedBuilder.setTimestamp(OffsetDateTime.now());
 
-                guild.createTextChannel("admin-" + event.getUser().getId(), guild.getCategoryById(1037308319574007878L)).addPermissionOverride(event.getMember(), EnumSet.of(Permission.VIEW_CHANNEL, Permission.MESSAGE_WRITE), null).addPermissionOverride(guild.getPublicRole(), null, EnumSet.of(Permission.VIEW_CHANNEL, Permission.MESSAGE_WRITE)).addPermissionOverride(guild.getRoleById(1038437908325072976L), EnumSet.of(Permission.VIEW_CHANNEL, Permission.MESSAGE_WRITE), null).complete().sendMessage("" + guild.getRoleById(1038437908325072976L).getAsMention() + "").queue(message -> {
+                guild.createTextChannel("admin-" + event.getUser().getId(), guild.getCategoryById(1056116741362679860L)).addPermissionOverride(event.getMember(), EnumSet.of(Permission.VIEW_CHANNEL, Permission.MESSAGE_WRITE), null).addPermissionOverride(guild.getPublicRole(), null, EnumSet.of(Permission.VIEW_CHANNEL, Permission.MESSAGE_WRITE)).addPermissionOverride(guild.getRoleById(1076491532175151134L), EnumSet.of(Permission.VIEW_CHANNEL, Permission.MESSAGE_WRITE), null).complete().sendMessage("" + guild.getRoleById(1076491532175151134L).getAsMention() + "").queue(message -> {
                     message.getChannel().sendMessageEmbeds(embedBuilder.build()).setActionRow(Button.danger("closeThisTicket", "❌ › Ticket schließen")).queue(message1 -> {
                         event.reply("` ✅ ` › Dein Ticket wurde erstellt: <#" + message.getChannel().getIdLong() + ">").setEphemeral(true).queue(interactionHook -> {
                             EmbedBuilder embedBuilderLog = new EmbedBuilder();
@@ -73,7 +72,7 @@ public class ButtonClickAdapter extends ListenerAdapter {
                             embedBuilderLog.setTimestamp(OffsetDateTime.now());
                             embedBuilderLog.setColor(Color.CYAN.darker());
 
-                            SkyPvP.getInstance().getDiscord().getJda().getTextChannelById(1037084805596196976L).sendMessageEmbeds(embedBuilderLog.build()).queue();
+                            SkyPvP.getInstance().getDiscord().getJda().getTextChannelById(1069023799372157010L).sendMessageEmbeds(embedBuilderLog.build()).queue();
                         });
                     });
                 });
@@ -82,7 +81,7 @@ public class ButtonClickAdapter extends ListenerAdapter {
             }
         } else if (event.getButton().getId().equals("closeThisTicket")) {
             Guild guild = event.getGuild();
-            if (event.getMember().getRoles().contains(guild.getRoleById(1038437908325072976L))) {
+            if (event.getMember().getRoles().contains(guild.getRoleById(1076491532175151134L))) {
                 long id = event.getChannel().getIdLong();
                 SkyPvP.getInstance().getDiscord().getJda().getTextChannelById(id).delete().queue(unused -> {
                     EmbedBuilder embedBuilderLog = new EmbedBuilder();
@@ -91,7 +90,7 @@ public class ButtonClickAdapter extends ListenerAdapter {
                     embedBuilderLog.setTimestamp(OffsetDateTime.now());
                     embedBuilderLog.setColor(Color.CYAN.darker());
 
-                    SkyPvP.getInstance().getDiscord().getJda().getTextChannelById(1037084805596196976L).sendMessageEmbeds(embedBuilderLog.build()).queue();
+                    SkyPvP.getInstance().getDiscord().getJda().getTextChannelById(1069023799372157010L).sendMessageEmbeds(embedBuilderLog.build()).queue();
                 });
             }
         } else if (event.getButton().getId().equals("collectRewards1")) {

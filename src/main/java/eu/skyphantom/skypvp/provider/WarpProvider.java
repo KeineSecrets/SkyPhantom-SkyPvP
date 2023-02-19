@@ -4,19 +4,16 @@ import eu.skyphantom.skypvp.api.Config;
 import org.bukkit.Bukkit;
 import org.bukkit.Location;
 
-import java.util.ArrayList;
 import java.util.HashSet;
-import java.util.List;
 import java.util.Set;
 
 public class WarpProvider {
 
     String name;
-    static Config config;
+    static Config config = new Config("plugins/SkyPvP/", "warps.yml");
 
     public WarpProvider(String name) {
         this.name = "warps." + name;
-        this.config = new Config("plugins/SkyPvP/", "warps.yml");
     }
 
     public boolean exists() {
@@ -24,7 +21,9 @@ public class WarpProvider {
     }
 
     public void set(Location location) {
-        config.getConfig().set(this.name, location.getWorld().getName() + ";" + location.getX() + ";" + location.getY() + ";" + location.getZ() + ";" + location.getYaw() + ";" + location.getPitch());
+        if (location == null) config.getConfig().set(this.name, null);
+        else
+            config.getConfig().set(this.name, location.getWorld().getName() + ";" + location.getX() + ";" + location.getY() + ";" + location.getZ() + ";" + location.getYaw() + ";" + location.getPitch());
         config.saveConfig();
     }
 

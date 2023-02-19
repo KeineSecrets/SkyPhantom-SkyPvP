@@ -6,6 +6,5 @@ depend:
   - ProtocolLib
   - HolographicDisplays
   - LuckPerms
-  - Citizens
 softdepend:
   - JDA

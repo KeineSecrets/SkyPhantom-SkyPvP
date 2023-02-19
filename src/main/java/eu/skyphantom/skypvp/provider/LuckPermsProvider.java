@@ -12,7 +12,6 @@ import java.util.Collection;
 import java.util.Objects;
 import java.util.UUID;
 import java.util.concurrent.CompletableFuture;
-import java.util.concurrent.atomic.AtomicReference;
 
 public class LuckPermsProvider {
 
@@ -40,15 +39,11 @@ public class LuckPermsProvider {
         return Objects.requireNonNull(get().getUserManager().getUser(uuid)).getPrimaryGroup();
     }
 
-    public static String getGroupNameOffline(UUID uuid) {
-        AtomicReference<String> group = new AtomicReference<>();
+    public static User giveMeADamnUser(UUID uniqueId) {
         UserManager userManager = get().getUserManager();
-        CompletableFuture<User> userFuture = userManager.loadUser(uuid);
+        CompletableFuture<User> userFuture = userManager.loadUser(uniqueId);
 
-        userFuture.thenAccept(user -> {
-            group.set(user.getPrimaryGroup());
-        });
-        return group.get();
+        return userFuture.join(); // ouch! (block until the User is loaded)
     }
 
     public static User getLuckPermsUser(UUID uuid) {

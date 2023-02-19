@@ -35,9 +35,22 @@ public class StatsProvider {
         return (config.getConfig().getString("league") != null ? League.valueOf(config.getConfig().getString("league")) : League.UNRANKED);
     }
 
+    public int getRespawnKitLevel() {
+        return this.config.getConfig().getInt("respawnkitlevel");
+    }
+
+    public void setRespawnKitLevel(int level) {
+        this.config.getConfig().set("respawnkitlevel", level);
+        this.config.saveConfig();
+    }
+
     public void setCoins(double value) {
         this.config.getConfig().set("coins", value);
         this.config.saveConfig();
+    }
+
+    public boolean hasEnoughCoins(double need) {
+        return (getCoins() >= need);
     }
 
     public double getCoins() {

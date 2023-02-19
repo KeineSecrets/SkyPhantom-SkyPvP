@@ -3,7 +3,6 @@ package eu.skyphantom.skypvp.discord.commands;
 import eu.skyphantom.skypvp.provider.StatsProvider;
 import eu.skyphantom.skypvp.utils.UUIDFetcher;
 import eu.skyphantom.skypvp.utils.cooldowns.DiscordCooldownManager;
-import eu.skyphantom.skypvp.utils.time.TimeUtil;
 import net.dv8tion.jda.api.events.interaction.SlashCommandEvent;
 
 import java.util.UUID;
@@ -21,12 +20,11 @@ public class RewardCommand {
                 statsProvider.addCoins(250D);
                 long time = (System.currentTimeMillis() + TimeUnit.DAYS.toMillis(1));
                 event.reply("` ✅ ` › Du hast **250 Tokens** erhalten. Komme in <t:" + time + ":R> wieder!").setEphemeral(true).queue();
-                cooldownManager.addCooldown("reward", 1, TimeUnit.DAYS);
+                cooldownManager.addCooldown("dailyReward", 1, TimeUnit.DAYS);
                 return;
             }
-            long time = cooldownManager.getRemainingTime("reward");
+            long time = cooldownManager.getRemainingTime("dailyReward");
             event.reply("` ❌ ` › Du hast deinen heutigen Reward bereits erhalten. Komme in <t:" + time + ":R> wieder!").setEphemeral(true).queue();
-            return;
         }
     }
 

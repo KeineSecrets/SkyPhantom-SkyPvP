@@ -5,14 +5,11 @@ package eu.skyphantom.skypvp.hooks;
  */
 
 
-
 import eu.skyphantom.skypvp.SkyPvP;
-import eu.skyphantom.skypvp.crates.CrateListener;
 import eu.skyphantom.skypvp.lms.listener.*;
 import eu.skyphantom.skypvp.utils.ChunkLoader;
 import eu.skyphantom.skypvp.utils.advent.KalenderListener;
 import org.bukkit.Bukkit;
-import org.bukkit.Chunk;
 import org.bukkit.event.Listener;
 import org.bukkit.plugin.messaging.PluginMessageListener;
 import org.reflections.Reflections;
@@ -27,8 +24,6 @@ public class EventManager {
 
     public EventManager() {
 
-        Bukkit.getPluginManager().registerEvents(new CrateListener(), SkyPvP.getInstance());
-        Bukkit.getLogger().log(Level.INFO, "[EventManager] Registered Listener CrateListener");
         Bukkit.getPluginManager().registerEvents(new ChunkLoader(), SkyPvP.getInstance());
         Bukkit.getLogger().log(Level.INFO, "[EventManager] Registered Listener ChunkLoader");
         Bukkit.getPluginManager().registerEvents(new KalenderListener(), SkyPvP.getInstance());

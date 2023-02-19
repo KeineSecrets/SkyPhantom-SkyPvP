@@ -1,254 +1,186 @@
 package eu.skyphantom.skypvp.clans;
 
-import eu.skyphantom.skypvp.SkyPvP;
+import com.google.gson.Gson;
+import com.google.gson.GsonBuilder;
+import com.mojang.util.UUIDTypeAdapter;
 import eu.skyphantom.skypvp.api.Config;
-import eu.skyphantom.skypvp.utils.UUIDFetcher;
-import eu.skyphantom.skypvp.utils.text.TextComponentBuilder;
-import net.md_5.bungee.api.chat.ClickEvent;
-import net.md_5.bungee.api.chat.TextComponent;
-import org.bukkit.Bukkit;
-import org.bukkit.entity.Player;
 
 import java.util.*;
+import java.util.concurrent.CopyOnWriteArrayList;
 
+/**
+ * @author KeineSecrets
+ * @ChatGPT SkyPvP
+ * Created: 26/01/2023 | 17:57
+ */
 public class ClanManager {
 
-    Config config = new Config("plugins/SkyPvP/", "clans.yml");
-    public Map<UUID, UUID> invites = new HashMap<>();
+    private static final Gson gson = new GsonBuilder().registerTypeAdapter(UUID.class, new UUIDTypeAdapter()).create();
+    private static final Config config = new Config("plugins/SkyPvP/", "clans.yml");
+    private final Map<UUID, List<Clan>> invites = new LinkedHashMap<>();
+
+    private final List<Clan> clanList;
+
+    public ClanManager() {
+        clanList = new CopyOnWriteArrayList<>();
+        if (config.getConfig().getStringList("clans") == null || config.getConfig().getStringList("clans").isEmpty())
+            return;
+        for (String json : config.getConfig().getStringList("clans")) {
+            clanList.add(fromJson(json));
+        }
+        if (config.getConfig().getConfigurationSection("invites") == null) return;
+        for (String uuidStr : config.getConfig().getConfigurationSection("invites").getKeys(false)) {
+            List<Clan> temp = new CopyOnWriteArrayList<>();
+            UUID uuid = UUID.fromString(uuidStr);
+            for (String clanName : config.getConfig().getStringList("invites." + uuidStr)) {
+                Clan clan = getByName(clanName);
+                temp.add(clan);
+            }
+            invites.put(uuid, temp);
+        }
+    }
+
+    private String toJson(Clan clan) {
+        return gson.toJson(clan, Clan.class);
+    }
+
+    private Clan fromJson(String json) {
+        return gson.fromJson(json, Clan.class);
+    }
+
+    public void save() {
+        List<String> jsonList = new CopyOnWriteArrayList<>();
+        for (Clan clan : clanList) {
+            jsonList.add(toJson(clan));
+        }
+        config.getConfig().set("clans", jsonList);
+        for (UUID uuid : invites.keySet()) {
+            List<String> clanNames = new ArrayList<>();
+            for (Clan clan : invites.get(uuid)) clanNames.add(clan.getName());
+            config.getConfig().set("invites." + uuid.toString(), clanNames);
+        }
+        config.saveConfig();
+    }
+
+    //
 
     public boolean isInClan(UUID uuid) {
-        return this.config.getConfig().getString("Spieler." + uuid + ".Clan") != null;
-    }
-
-    public String getClan(UUID uuid) {
-        String clan = this.config.getConfig().getString("Spieler." + uuid + ".Clan");
-        return clan;
-    }
-
-    public String getClanTag(UUID uuid) {
-        String tag = this.config.getConfig().getString("Clans." + getClan(uuid) + ".Name");
-        return tag;
-    }
-
-    public String getClanTag(String clanName) {
-        String tag = this.config.getConfig().getString("Clans." + clanName + ".Name");
-        return tag;
-    }
-
-    public String getClanOwner(String clanName) {
-        String tag = this.config.getConfig().getString("Clans." + clanName + ".Owner");
-        return UUIDFetcher.getName(UUID.fromString(tag));
-    }
-
-    public List<String> getPlayers(String clan) {
-        List<String> list = this.config.getConfig().getStringList("Clans." + clan + ".Members");
-        return list;
-    }
-
-    public List<String> getAllClans() {
-        List<String> clans = new ArrayList<>();
-        if (this.config.getConfig().getConfigurationSection("Clans") == null) return clans;
-        clans.addAll(this.config.getConfig().getConfigurationSection("Clans").getKeys(false));
-        return clans;
-    }
-
-    public List<String> getAllClansByName(String clan) {
-        List<String> clans = new ArrayList<>();
-        if (this.config.getConfig().getConfigurationSection("Clans") == null) return clans;
-        for (String name : this.config.getConfig().getConfigurationSection("Clans").getKeys(false)) {
-            if (name.equalsIgnoreCase(clan)) clans.add(name);
-        }
-        return clans;
-    }
-
-    public List<String> getAllClansByTag(String tag) {
-        List<String> clans = new ArrayList<>();
-        if (this.config.getConfig().getConfigurationSection("Clans") == null) return clans;
-        for (String name : this.config.getConfig().getConfigurationSection("Clans").getKeys(false)) {
-            if (config.getConfig().getString("Clans." + name + ".Name").equalsIgnoreCase(tag)) clans.add(name);
-        }
-        return clans;
-    }
-
-    public void addPlayer(String clan, UUID uuid) {
-        List<String> members = this.config.getConfig().getStringList("Clans." + clan + ".Members");
-        members.add(uuid.toString());
-        this.config.getConfig().set("Clans." + clan + ".Members", members);
-        this.config.getConfig().set("Spieler." + uuid + ".Clan", clan);
-        config.saveConfig();
-    }
-
-    public void removePlayer(String clan, UUID uuid) {
-        List<String> members = this.config.getConfig().getStringList("Clans." + clan + ".Members");
-        members.remove(uuid.toString());
-        this.config.getConfig().set("Clans." + clan + ".Members", members);
-        this.config.getConfig().set("Spieler." + uuid + ".Clan", clan);
-        config.saveConfig();
-        for (String member : members) {
-            Player t = Bukkit.getPlayer(member);
-            if (t != null) t.getPlayer().sendMessage(SkyPvP.PREFIX + "§7Der Spieler §a" + UUIDFetcher.getName(uuid) + "§7 hat den Clan verlassen§8.");
-        }
-    }
-
-    public boolean clanExists(String clan) {
-        return this.config.getConfig().getString("Clans." + clan + ".Owner") != null;
-    }
-
-    public boolean clanTagExists(String tag) {
-        if (config.getConfig().getConfigurationSection("Clans") == null) return false;
-        for (String s : config.getConfig().getConfigurationSection("Clans").getKeys(false)) {
-            if (config.getConfig().getString("Clans." + s + ".Name") == null) continue;
-            if (config.getConfig().getString("Clans." + s + ".Name").equalsIgnoreCase(tag)) return true;
+        for (Clan clan : clanList) {
+            if (clan.getOwner().equals(uuid)) return true;
+            if (clan.getModerators().contains(uuid)) return true;
+            if (clan.getMembers().contains(uuid)) return true;
         }
         return false;
     }
 
-    public void createClan(String clanName, String clanTag, UUID uuid) {
-        this.config.getConfig().set("Clans." + clanName + ".Name", clanTag);
-        this.config.getConfig().set("Clans." + clanName + ".Color", "§f");
-        this.config.getConfig().set("Clans." + clanName + ".Kills", 0.0D);
-        if (this.config.getConfig().getConfigurationSection("Clans") != null)
-            this.config.getConfig().set("Clans." + clanName + ".ID", (this.config.getConfig().getConfigurationSection("Clans").getKeys(false).size()));
-        else this.config.getConfig().set("Clans." + clanName + ".ID", 1);
-        this.config.getConfig().set("Clans." + clanName + ".Owner", uuid.toString());
-        this.config.getConfig().set("Spieler." + uuid + ".Clan", clanName);
-        List<String> m = this.config.getConfig().getStringList("Clans." + clanName + ".Members");
-        m.add(uuid.toString());
-        this.config.getConfig().set("Clans." + clanName + ".Members", m);
-        config.saveConfig();
+    public Clan getClan(UUID uuid) {
+        for (Clan clan : clanList) {
+            if (clan.getOwner().equals(uuid)) return clan;
+            if (clan.getModerators().contains(uuid)) return clan;
+            if (clan.getMembers().contains(uuid)) return clan;
+        }
+        return null;
     }
 
-    public int getClanId(String clanName) {
-        return this.config.getConfig().getInt("Clans." + clanName + ".ID");
-    }
-
-    public String getClanColor(String clanName) {
-        double clanKills = this.config.getConfig().getDouble("Clans." + clanName + ".Kills");
-        String clanColor = this.config.getConfig().getString("Clans." + clanName + ".Color");
-        if (clanName.equalsIgnoreCase("team")) {
-            return "§c";
+    public boolean isModerator(UUID uuid) {
+        if (isInClan(uuid)) {
+            return getClan(uuid).getModerators().contains(uuid);
         }
-        if (clanKills < 10) {
-            clanColor = "§a";
-        }
-        if (clanKills < 25) {
-            clanColor = "§a";
-        }
-        if (clanKills < 75) {
-            clanColor = "§6";
-        }
-        if (clanKills < 125) {
-            clanColor = "§2§l";
-        }
-        if (clanKills < 150) {
-            clanColor = "§d§l";
-        }
-        if (clanKills < 220) {
-            clanColor = "§5§l";
-        }
-        return clanColor;
-    }
-
-    public String getClanColor(UUID uuid) {
-        String clanName = getClan(uuid);
-        double clanKills = this.config.getConfig().getDouble("Clans." + clanName + ".Kills");
-        String clanColor = this.config.getConfig().getString("Clans." + clanName + ".Color");
-        if (clanName.equalsIgnoreCase("team")) {
-            return "§c";
-        }
-        if (clanKills < 10) {
-            clanColor = "§a";
-        }
-        if (clanKills < 25) {
-            clanColor = "§a";
-        }
-        if (clanKills < 75) {
-            clanColor = "§6";
-        }
-        if (clanKills < 125) {
-            clanColor = "§2§l";
-        }
-        if (clanKills < 150) {
-            clanColor = "§d§l";
-        }
-        if (clanKills < 220) {
-            clanColor = "§5§l";
-        }
-        return clanColor;
-    }
-
-    public void deleteClan(String clan) {
-        List<String> members = this.config.getConfig().getStringList("Clans." + clan + ".Members");
-        for (String member : members) {
-            Player t = Bukkit.getPlayer(member);
-            if (t != null) t.getPlayer().sendMessage(SkyPvP.PREFIX + "§7Der Clan wurde gelöscht§8.");
-        }
-        for (String member : members) this.config.getConfig().set("Spieler." + member + ".Clan", null);
-        this.config.getConfig().set("Clans." + clan, null);
-        config.saveConfig();
-    }
-
-    public void invitePlayer(UUID uuid, UUID inviter) {
-        Player pInviter = Bukkit.getPlayer(inviter);
-        Player pInvited = Bukkit.getPlayer(uuid);
-        if (this.invites.containsKey(uuid)) {
-            if (pInviter != null) pInviter.sendMessage(SkyPvP.PREFIX + "§7Der Spieler wurde bereits eingeladen§8.");
-            return;
-        }
-        this.invites.put(uuid, inviter);
-        pInviter.sendMessage(SkyPvP.PREFIX + "§7Du hast den Spieler §a" + (pInvited != null ? pInvited.getDisplayName() : UUIDFetcher.getName(uuid)) + "§7 in deinen Clan eingeladen§8.");
-        if (pInvited != null) {
-            TextComponentBuilder textComponentBuilder1 = new TextComponentBuilder(SkyPvP.PREFIX + "§7Du §7wurdest §7in §7den §a" + getClan(inviter) + "§8-§7Clan §7eingeladen§8.\n");
-            TextComponentBuilder textComponentBuilder2 = new TextComponentBuilder(SkyPvP.PREFIX + "§7Annehmen§8? §a§lKLICKE §a§lHIER\n").setClickEvent(new ClickEvent(ClickEvent.Action.RUN_COMMAND, "/clan accept " + getClan(inviter)));
-            TextComponentBuilder textComponentBuilder3 = new TextComponentBuilder(SkyPvP.PREFIX + "§7Ablehnen§8? §c§lKLICKE §c§lHIER").setClickEvent(new ClickEvent(ClickEvent.Action.RUN_COMMAND, "/clan deny " + getClan(inviter)));
-
-            TextComponent componentOne = textComponentBuilder1.toTextComponent();
-            TextComponent componentTwo = textComponentBuilder2.toTextComponent();
-            TextComponent componentThree = textComponentBuilder3.toTextComponent();
-
-            pInvited.spigot().sendMessage(componentOne, componentTwo, componentThree);
-        }
-    }
-
-    public void acceptInvite(UUID whoWasInvited) {
-        UUID inviter = this.invites.get(whoWasInvited);
-        Player pInvited = Bukkit.getPlayer(whoWasInvited);
-        String clanName = getClan(inviter);
-        if (!isInClan(whoWasInvited)) {
-            addPlayer(clanName, whoWasInvited);
-            if (Bukkit.getPlayer(inviter) != null) Bukkit.getPlayer(inviter).sendMessage(SkyPvP.PREFIX + "§7Der Spieler §a" + (pInvited != null ? pInvited.getDisplayName() : UUIDFetcher.getName(whoWasInvited)) + "§7 ist dem Clan beigetreten§8.");
-            if (pInvited != null) pInvited.sendMessage(SkyPvP.PREFIX + "§7Du bist dem Clan §a" + clanName + "§7 beigetreten§8.");
-            this.invites.remove(whoWasInvited);
-            return;
-        }
-        if (pInvited != null) pInvited.sendMessage(SkyPvP.PREFIX + "§7Du bist bereits in einem Clan§8.");
-    }
-
-    public void denyInvite(UUID whoWasInvited) {
-        UUID inviter = this.invites.get(whoWasInvited);
-        Player pInvited = Bukkit.getPlayer(whoWasInvited);
-        String clanName = getClan(inviter);
-        if (Bukkit.getPlayer(inviter) != null) Bukkit.getPlayer(inviter).sendMessage(SkyPvP.PREFIX + "§7Der Spieler §a" + (pInvited != null ? pInvited.getDisplayName() : UUIDFetcher.getName(whoWasInvited)) + "§7 hat die Einladung abgelehnt§8.");
-        this.invites.remove(whoWasInvited);
-        if (pInvited != null) pInvited.sendMessage(SkyPvP.PREFIX + "§7Du hast die Einladung abgelehnt§8.");
+        return false;
     }
 
     public boolean isOwner(UUID uuid) {
-        String owner = this.config.getConfig().getString("Clans." + getClan(uuid) + ".Owner");
-        return owner != null;
+        if (isInClan(uuid)) {
+            return getClan(uuid).getOwner().equals(uuid);
+        }
+        return false;
     }
 
-    public boolean isValid(String code) {
-        return code.matches("[A-Za-z0-9_-]*");
+    //
+
+    public Clan getByName(String name) {
+        return clanList.stream().filter((clan -> clan.getName().equals(name))).findFirst().orElse(null);
     }
 
-    public void sendToClanchat(String message, Player player) {
-        String clanName = getClan(player.getUniqueId());
-        for (String name : getPlayers(clanName)) {
-            if (Bukkit.getPlayer(UUID.fromString(name)) == null) continue;
-            Bukkit.getPlayer(UUID.fromString(name)).sendMessage(SkyPvP.PREFIX + " §8(§a§lCC§8) §7" + (isOwner(player.getUniqueId()) ? "§c" : "§a") + player.getName() + "§8: §7" + message.trim());
+    public Clan getByTag(String tag) {
+        return clanList.stream().filter((clan -> clan.getTag().equals(tag))).findFirst().orElse(null);
+    }
+
+    public void addToList(Clan clan) {
+        clanList.add(clan);
+    }
+
+    public void removeFromList(Clan clan) {
+        clanList.remove(clan);
+    }
+
+    //
+
+    public int createClan(String name, String tag, UUID owner) {
+        Clan clan = new Clan(owner, (clanList.size() + 1), new ArrayList<>(), new ArrayList<>(), name, tag, System.currentTimeMillis(), 0L, 0L, "§e", 7);
+        addToList(clan);
+        return clan.getId();
+    }
+
+    public void deleteClan(Clan clan) {
+        clanList.remove(clan);
+        removeFromList(clan);
+    }
+
+    public void inviteMember(Clan clan, UUID toBeInvited) {
+        List<Clan> clanInvites = (invites.get(toBeInvited) != null ? invites.get(toBeInvited) : new ArrayList<>());
+        clanInvites.add(clan);
+        invites.put(toBeInvited, clanInvites);
+    }
+
+    public List<Clan> getInvites(UUID uuid) {
+        return (invites.get(uuid) != null ? invites.get(uuid) : new ArrayList<>());
+    }
+
+    public void acceptInvite(UUID uuid, Clan clan) {
+        List<Clan> clanInvites = getInvites(uuid);
+        if (clanInvites.contains(clan)) {
+            clanInvites.remove(clan);
+            removeFromList(clan);
+            List<UUID> members = clan.getMembers();
+            members.add(uuid);
+            clan.setMembers(members);
+            addToList(clan);
         }
     }
 
+    public void rejectInvite(UUID uuid, Clan clan) {
+        List<Clan> clanInvites = getInvites(uuid);
+        clanInvites.remove(clan);
+    }
+
+    public void upgradeRank(UUID toBeUpgraded, Clan clan) {
+        List<UUID> members = clan.getMembers(), moderators = clan.getModerators();
+        if (members.contains(toBeUpgraded)) {
+            removeFromList(clan);
+            members.remove(toBeUpgraded);
+            moderators.add(toBeUpgraded);
+            addToList(clan);
+        }
+    }
+
+    public void downgradeRank(UUID toBeDowngraded, Clan clan) {
+        List<UUID> members = clan.getMembers(), moderators = clan.getModerators();
+        if (moderators.contains(toBeDowngraded)) {
+            removeFromList(clan);
+            moderators.remove(toBeDowngraded);
+            members.add(toBeDowngraded);
+            addToList(clan);
+        }
+    }
+
+    public String getRank(UUID uuid, Clan clan) {
+        List<UUID> members = clan.getMembers(), moderators = clan.getModerators();
+        if (clan.getOwner().toString().equalsIgnoreCase(uuid.toString())) {
+            return "§4Owner";
+        }
+        if (moderators.contains(uuid)) return "§cModerator";
+        return "§aMember";
+    }
 
 }

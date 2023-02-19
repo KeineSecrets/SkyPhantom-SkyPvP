@@ -1,6 +1,7 @@
 package eu.skyphantom.skypvp.events;
 
 import eu.skyphantom.skypvp.SkyPvP;
+import eu.skyphantom.skypvp.api.RainbowTab;
 import eu.skyphantom.skypvp.api.VerifyAPI;
 import eu.skyphantom.skypvp.provider.LoginStreakProvider;
 import eu.skyphantom.skypvp.provider.StatsProvider;
@@ -52,8 +53,10 @@ public class PlayerJoinListener implements Listener {
 
         TextComponent discord = new TextComponentBuilder("§8(§9§lDISCORD§8)§r").setHoverEvent(new HoverEvent(HoverEvent.Action.SHOW_TEXT, new TextComponent[]{new TextComponent("§8▪ §7Klicke um zum §9Discord§7 zu gelangen§8.")})).setClickEvent(new ClickEvent(ClickEvent.Action.OPEN_URL, "https://discord.gg/skyphantom/")).toTextComponent();
         TextComponent shop = new TextComponentBuilder("§8(§e§lSTORE§8)§r").setHoverEvent(new HoverEvent(HoverEvent.Action.SHOW_TEXT, new TextComponent[]{new TextComponent("§8▪ §7Klicke um zum §eShop§7 zu gelangen§8.")})).setClickEvent(new ClickEvent(ClickEvent.Action.OPEN_URL, "https://store.skyphantom.eu/")).toTextComponent();
-        TextComponent vote = new TextComponentBuilder("§8(§c§lVOTE§8)§r").setHoverEvent(new HoverEvent(HoverEvent.Action.SHOW_TEXT, new TextComponent[]{new TextComponent("§8▪ §7Klicke um für uns zu §cvoten§8.")})).setClickEvent(new ClickEvent(ClickEvent.Action.OPEN_URL, "https://minecraft-server.eu/server/index/22877/")).toTextComponent();
+        TextComponent vote = new TextComponentBuilder("§8(§c§lVOTE§8)§r").setHoverEvent(new HoverEvent(HoverEvent.Action.SHOW_TEXT, new TextComponent[]{new TextComponent("§8▪ §7Klicke um für uns zu §cvoten§8.")})).setClickEvent(new ClickEvent(ClickEvent.Action.OPEN_URL, "https://minecraft-server.eu/vote/index/22877/" + player.getName() + "/")).toTextComponent();
         TextComponent empty1 = new TextComponent("§r   §r"), empty2 = new TextComponent("§r   §r"), empty3 = new TextComponent("§r   §r");
+
+        RainbowTab.activePlayers.put(player, false);
 
         message.addExtra(discord);
         message.addExtra(empty2);

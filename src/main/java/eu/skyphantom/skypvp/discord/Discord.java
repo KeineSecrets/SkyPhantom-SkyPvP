@@ -45,7 +45,7 @@ public class Discord {
         }
 
         task = Bukkit.getScheduler().scheduleSyncRepeatingTask(SkyPvP.getInstance(), () -> {
-            executor.execute(() -> jda.getPresence().setActivity(Activity.streaming("mit " + Bukkit.getOnlinePlayers().size() + " Spielern", "https://www.youtube.com/watch?v=GbZSx2B6nUY")));
+            executor.execute(() -> jda.getPresence().setActivity(Activity.streaming("mit " + Bukkit.getOnlinePlayers().size() + " Spielern", "https://youtu.be/3r5kilK3giQ")));
         }, 0L, 20*5L);
 
     }

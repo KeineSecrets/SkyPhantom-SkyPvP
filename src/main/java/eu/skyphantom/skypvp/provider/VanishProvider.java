@@ -31,7 +31,7 @@ public class VanishProvider {
         embedBuilder.setTimestamp(OffsetDateTime.now());
         embedBuilder.setColor(Color.YELLOW.darker());
 
-        SkyPvP.getInstance().getDiscord().getJda().getTextChannelById(1038437940180811926L).sendMessageEmbeds(embedBuilder.build()).queue();
+        SkyPvP.getInstance().getDiscord().getJda().getTextChannelById(1069023799372157010L).sendMessageEmbeds(embedBuilder.build()).queue();
     }
 
     public static void remove(Player player) {
@@ -46,7 +46,7 @@ public class VanishProvider {
         embedBuilder.setTimestamp(OffsetDateTime.now());
         embedBuilder.setColor(Color.YELLOW.darker());
 
-        SkyPvP.getInstance().getDiscord().getJda().getTextChannelById(1038437940180811926L).sendMessageEmbeds(embedBuilder.build()).queue();
+        SkyPvP.getInstance().getDiscord().getJda().getTextChannelById(1069023799372157010L).sendMessageEmbeds(embedBuilder.build()).queue();
     }
 
     public static boolean get(Player player) {

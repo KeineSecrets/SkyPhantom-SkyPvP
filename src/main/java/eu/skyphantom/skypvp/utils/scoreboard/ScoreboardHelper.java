@@ -4,14 +4,13 @@ import eu.skyphantom.skypvp.lms.LMS;
 import eu.skyphantom.skypvp.lms.State;
 import eu.skyphantom.skypvp.lms.tasks.LMSLobbyTask;
 import eu.skyphantom.skypvp.provider.StatsProvider;
+import eu.skyphantom.skypvp.utils.Utils;
 import eu.skyphantom.skypvp.utils.time.TimeUtil;
 import org.bukkit.entity.Player;
 
-import java.text.DecimalFormat;
 import java.util.Map;
 import java.util.UUID;
 import java.util.concurrent.ConcurrentHashMap;
-import java.util.concurrent.TimeUnit;
 
 import static eu.skyphantom.skypvp.lms.tasks.LMSGameIdleTask.endMillis;
 
@@ -36,7 +35,7 @@ public class ScoreboardHelper {
         try {
             FastBoard fastBoard = boards.get(player.getUniqueId());
             StatsProvider statsProvider = new StatsProvider(player.getUniqueId());
-            String coins = new DecimalFormat("#,###.##").format(statsProvider.getCoins()).replace(",", ".").replace(".", "§8'§6");
+            String coins = Utils.formatDouble(statsProvider.getCoins());
             if (LMS.getInstance().getState() == State.LOBBY && LMS.getInstance().getLMSHandler().getPlayers().contains(player)) {
                 fastBoard.updateTitle("§8▎ §9§lLMS§8 ▪ §7Lobby");
                 fastBoard.updateLines(
@@ -78,7 +77,7 @@ public class ScoreboardHelper {
                         "§8▪ §5" + player.getName(),
                         "§r",
                         "§8▎ §6⛂ §8» §7Tokens§8:",
-                        "§8▪ §6" + (coins.length() >= 25 ? "§8/§6stats" : coins),
+                        "§8▪ §6" + coins,
                         "§r",
                         "§8▎ §3§l⚔ §8» §7KDr§8:",
                         "§8▪ §3" + statsProvider.getKDr(),
